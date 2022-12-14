@@ -6,20 +6,20 @@ sites:
   - name: Truyol
     url: https://truyol.com/
    # method: POST
-  - name: Bo Truyol
-    url: https://bo.truyol.com/
-    # method: POST
+#  - name: Bo Truyol
+#    url: https://bo.truyol.com/
+#    # method: POST
 #  - name: Blog Truyol
 #    url: https://truyol.com/blog/
 #    method: POST
-  - name: Mail Truyol
-    url: https://mail.truyol.com/
-    # method: POST
-  - name: Beta Truyol
-    url: https://beta.truyol.com/
-    # method: POST
-    - name: Test Broken Site
-    url: https://thissitedoesnotexist.koj.co
+#  - name: Mail Truyol
+#    url: https://mail.truyol.com/
+#    # method: POST
+#  - name: Beta Truyol
+#    url: https://beta.truyol.com/
+#    # method: POST
+#    - name: Test Broken Site
+#    url: https://thissitedoesnotexist.koj.co
     
     
     
