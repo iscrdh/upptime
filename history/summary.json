@@ -10,11 +10,11 @@
     "uptimeWeek": "99.82%",
     "uptimeMonth": "99.82%",
     "uptimeYear": "99.82%",
-    "time": 878,
-    "timeDay": 878,
-    "timeWeek": 878,
-    "timeMonth": 878,
-    "timeYear": 878,
+    "time": 893,
+    "timeDay": 893,
+    "timeWeek": 893,
+    "timeMonth": 893,
+    "timeYear": 893,
     "dailyMinutesDown": {
       "2022-12-14": 1
     }
@@ -30,11 +30,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 4100,
-    "timeDay": 4100,
-    "timeWeek": 4100,
-    "timeMonth": 4100,
-    "timeYear": 4100,
+    "time": 3745,
+    "timeDay": 3745,
+    "timeWeek": 3745,
+    "timeMonth": 3745,
+    "timeYear": 3745,
     "dailyMinutesDown": {}
   },
   {
@@ -48,11 +48,31 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 925,
-    "timeDay": 925,
-    "timeWeek": 925,
-    "timeMonth": 925,
-    "timeYear": 925,
+    "time": 1033,
+    "timeDay": 1033,
+    "timeWeek": 1033,
+    "timeMonth": 1033,
+    "timeYear": 1033,
     "dailyMinutesDown": {}
+  },
+  {
+    "name": "Beta Truyol",
+    "url": "https://beta.truyol.com/",
+    "icon": "https://icons.duckduckgo.com/ip3/beta.truyol.com.ico",
+    "slug": "beta-truyol",
+    "status": "down",
+    "uptime": "42.02%",
+    "uptimeDay": "42.02%",
+    "uptimeWeek": "42.02%",
+    "uptimeMonth": "42.02%",
+    "uptimeYear": "42.02%",
+    "time": 1745,
+    "timeDay": 1745,
+    "timeWeek": 1745,
+    "timeMonth": 1745,
+    "timeYear": 1745,
+    "dailyMinutesDown": {
+      "2022-12-14": 0
+    }
   }
 ]
