@@ -10,14 +10,32 @@
     "uptimeWeek": "99.84%",
     "uptimeMonth": "99.84%",
     "uptimeYear": "99.84%",
-    "time": 934,
-    "timeDay": 934,
-    "timeWeek": 934,
-    "timeMonth": 934,
-    "timeYear": 934,
+    "time": 957,
+    "timeDay": 957,
+    "timeWeek": 957,
+    "timeMonth": 957,
+    "timeYear": 957,
     "dailyMinutesDown": {
       "2022-12-14": 1
     }
+  },
+  {
+    "name": "Bo Truyol",
+    "url": "https://bo.truyol.com/",
+    "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
+    "slug": "bo-truyol",
+    "status": "up",
+    "uptime": "100.00%",
+    "uptimeDay": "100.00%",
+    "uptimeWeek": "100.00%",
+    "uptimeMonth": "100.00%",
+    "uptimeYear": "100.00%",
+    "time": 3638,
+    "timeDay": 3638,
+    "timeWeek": 3638,
+    "timeMonth": 3638,
+    "timeYear": 3638,
+    "dailyMinutesDown": {}
   },
   {
     "name": "Mail Truyol",
@@ -30,11 +48,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 1045,
-    "timeDay": 1045,
-    "timeWeek": 1045,
-    "timeMonth": 1045,
-    "timeYear": 1045,
+    "time": 1031,
+    "timeDay": 1031,
+    "timeWeek": 1031,
+    "timeMonth": 1031,
+    "timeYear": 1031,
     "dailyMinutesDown": {}
   }
 ]
