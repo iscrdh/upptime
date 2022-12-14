@@ -9,9 +9,9 @@ sites:
   - name: Bo Truyol
     url: https://bo.truyol.com/bo/acceso
     method: POST
-  - name: Blog Truyol
-    url: https://truyol.com/blog/
-    method: POST
+#  - name: Blog Truyol
+#    url: https://truyol.com/blog/
+#    method: POST
   - name: Mail Truyol
     url: https://mail.truyol.com/
     method: POST
