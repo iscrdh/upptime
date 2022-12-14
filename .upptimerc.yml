@@ -6,8 +6,8 @@ sites:
   - name: Truyol
     url: https://truyol.com/
    # method: POST
-#  - name: Bo Truyol
-#    url: https://bo.truyol.com/
+  - name: Bo Truyol
+    url: https://bo.truyol.com/
 #    # method: POST
 #  - name: Blog Truyol
 #    url: https://truyol.com/blog/
