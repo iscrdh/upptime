@@ -15,6 +15,13 @@ sites:
   - name: Mail Truyol
     url: https://mail.truyol.com/
     method: POST
+  - name: Beta Truyol
+    url: https://beta.truyol.com/
+    method: POST
+    
+    
+    
+    
 
 status-website:
   # Add your custom domain name, or remove the `cname` line if you don't have a domain
