@@ -7,17 +7,17 @@ sites:
     url: https://truyol.com/
    # method: POST
   - name: Bo Truyol
-    url: https://bo.truyol.com/bo/acceso
-    #method: POST
+    url: https://bo.truyol.com/
+    # method: POST
 #  - name: Blog Truyol
 #    url: https://truyol.com/blog/
 #    method: POST
   - name: Mail Truyol
     url: https://mail.truyol.com/
-    #method: POST
+    # method: POST
   - name: Beta Truyol
     url: https://beta.truyol.com/
-    #method: POST
+    # method: POST
     - name: Test Broken Site
     url: https://thissitedoesnotexist.koj.co
     
@@ -27,7 +27,7 @@ sites:
 status-website:
   # Add your custom domain name, or remove the `cname` line if you don't have a domain
   # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-  #cname: demo.upptime.js.org
+  # cname: demo.upptime.js.org
   baseUrl: /upptime
   logoUrl: https://truyol.com/img/es/logo/truyol.png
   name: Truyol
