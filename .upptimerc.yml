@@ -7,10 +7,10 @@ sites:
     url: https://truyol.com/
     method: POST
   - name: Bo Truyol
-    url: https://bo.truyol.com/
+    url: https://bo.truyol.com/bo/acceso
     method: POST
   - name: Blog Truyol
-    url: https://blog.truyol.com/
+    url: https://truyol.com/blog/
     method: POST
      
 
