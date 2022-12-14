@@ -5,10 +5,13 @@ repo: upptime # The name of this repository
 sites:
   - name: Truyol
     url: https://truyol.com/
+    method: POST
   - name: Bo Truyol
     url: https://bo.truyol.com/
+    method: POST
   - name: Blog Truyol
     url: https://blog.truyol.com/
+    method: POST
      
 
 status-website:
@@ -25,6 +28,9 @@ status-website:
       href: /
     - title: GitHub
       href: https://github.com/$OWNER/$REPO
+      
+  status-website:
+  theme: light
 
 # Upptime also supports notifications, assigning issues, and more
 # See https://upptime.js.org/docs/configuration
