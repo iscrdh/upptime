@@ -6,9 +6,9 @@ sites:
   - name: Truyol
     url: https://truyol.com/
   - name: Bo Truyol
-    url: https://bo.truyol.com/bo/acceso
+    url: https://bo.truyol.com/
   - name: Blog Truyol
-    url: https://truyol.com/blog/
+    url: https://blog.truyol.com/
      
 
 status-website:
