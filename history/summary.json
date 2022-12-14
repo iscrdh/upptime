@@ -10,11 +10,11 @@
     "uptimeWeek": "99.82%",
     "uptimeMonth": "99.82%",
     "uptimeYear": "99.82%",
-    "time": 886,
-    "timeDay": 886,
-    "timeWeek": 886,
-    "timeMonth": 886,
-    "timeYear": 886,
+    "time": 878,
+    "timeDay": 878,
+    "timeWeek": 878,
+    "timeMonth": 878,
+    "timeYear": 878,
     "dailyMinutesDown": {
       "2022-12-14": 1
     }
@@ -30,32 +30,12 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 4104,
-    "timeDay": 4104,
-    "timeWeek": 4104,
-    "timeMonth": 4104,
-    "timeYear": 4104,
+    "time": 4100,
+    "timeDay": 4100,
+    "timeWeek": 4100,
+    "timeMonth": 4100,
+    "timeYear": 4100,
     "dailyMinutesDown": {}
-  },
-  {
-    "name": "Blog Truyol",
-    "url": "https://truyol.com/blog/",
-    "icon": "https://icons.duckduckgo.com/ip3/truyol.com.ico",
-    "slug": "blog-truyol",
-    "status": "down",
-    "uptime": "97.97%",
-    "uptimeDay": "97.97%",
-    "uptimeWeek": "97.97%",
-    "uptimeMonth": "97.97%",
-    "uptimeYear": "97.97%",
-    "time": 0,
-    "timeDay": 0,
-    "timeWeek": 0,
-    "timeMonth": 0,
-    "timeYear": 0,
-    "dailyMinutesDown": {
-      "2022-12-14": 7
-    }
   },
   {
     "name": "Mail Truyol",
@@ -68,11 +48,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 834,
-    "timeDay": 834,
-    "timeWeek": 834,
-    "timeMonth": 834,
-    "timeYear": 834,
+    "time": 925,
+    "timeDay": 925,
+    "timeWeek": 925,
+    "timeMonth": 925,
+    "timeYear": 925,
     "dailyMinutesDown": {}
   }
 ]
