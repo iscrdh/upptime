@@ -12,8 +12,8 @@ sites:
 #  - name: Blog Truyol
 #    url: https://truyol.com/blog/
 #    method: POST
-#  - name: Mail Truyol
-#    url: https://mail.truyol.com/
+  - name: Mail Truyol
+    url: https://mail.truyol.com/
 #    # method: POST
 #  - name: Beta Truyol
 #    url: https://beta.truyol.com/
@@ -40,7 +40,7 @@ status-website:
       href: https://github.com/$OWNER/$REPO
       
   # status-website:
-  # theme: night
+  theme: light
 
 # Upptime also supports notifications, assigning issues, and more
 # See https://upptime.js.org/docs/configuration
