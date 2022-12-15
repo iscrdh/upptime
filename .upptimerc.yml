@@ -14,6 +14,8 @@ sites:
 #    method: POST
   - name: Mail Truyol
     url: https://mail.truyol.com/
+  - name: Nroot
+    url: https://www.nroot.es/
 #    # method: POST
 #  - name: Beta Truyol
 #    url: https://beta.truyol.com/
