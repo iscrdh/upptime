@@ -10,11 +10,11 @@
     "uptimeWeek": "99.93%",
     "uptimeMonth": "99.93%",
     "uptimeYear": "99.93%",
-    "time": 954,
-    "timeDay": 954,
-    "timeWeek": 954,
-    "timeMonth": 954,
-    "timeYear": 954,
+    "time": 950,
+    "timeDay": 950,
+    "timeWeek": 950,
+    "timeMonth": 950,
+    "timeYear": 950,
     "dailyMinutesDown": {
       "2022-12-14": 1
     }
@@ -30,11 +30,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 3682,
-    "timeDay": 3682,
-    "timeWeek": 3682,
-    "timeMonth": 3682,
-    "timeYear": 3682,
+    "time": 3715,
+    "timeDay": 3715,
+    "timeWeek": 3715,
+    "timeMonth": 3715,
+    "timeYear": 3715,
     "dailyMinutesDown": {}
   },
   {
@@ -48,11 +48,29 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "100.00%",
-    "time": 1004,
-    "timeDay": 1004,
-    "timeWeek": 1004,
-    "timeMonth": 1004,
-    "timeYear": 1004,
+    "time": 984,
+    "timeDay": 984,
+    "timeWeek": 984,
+    "timeMonth": 984,
+    "timeYear": 984,
+    "dailyMinutesDown": {}
+  },
+  {
+    "name": "Nroot",
+    "url": "https://www.nroot.es/",
+    "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
+    "slug": "nroot",
+    "status": "up",
+    "uptime": "100.00%",
+    "uptimeDay": "100.00%",
+    "uptimeWeek": "100.00%",
+    "uptimeMonth": "100.00%",
+    "uptimeYear": "100.00%",
+    "time": 1352,
+    "timeDay": 1352,
+    "timeWeek": 1352,
+    "timeMonth": 1352,
+    "timeYear": 1352,
     "dailyMinutesDown": {}
   }
 ]
