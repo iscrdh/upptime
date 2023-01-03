@@ -60,7 +60,7 @@
     "url": "https://www.nroot.es/",
     "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
     "slug": "nroot",
-    "status": "up",
+    "status": "down",
     "uptime": "99.56%",
     "uptimeDay": "91.77%",
     "uptimeWeek": "98.82%",
@@ -72,6 +72,7 @@
     "timeMonth": 1709,
     "timeYear": 1709,
     "dailyMinutesDown": {
+      "2023-01-03": 0,
       "2023-01-02": 118
     }
   }
