@@ -24,19 +24,19 @@
     "url": "https://bo.truyol.com/",
     "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
     "slug": "bo-truyol",
-    "status": "down",
-    "uptime": "100.00%",
-    "uptimeDay": "99.98%",
-    "uptimeWeek": "100.00%",
-    "uptimeMonth": "100.00%",
-    "uptimeYear": "100.00%",
-    "time": 4230,
-    "timeDay": 4456,
-    "timeWeek": 4408,
-    "timeMonth": 4439,
-    "timeYear": 4230,
+    "status": "up",
+    "uptime": "99.95%",
+    "uptimeDay": "98.46%",
+    "uptimeWeek": "99.78%",
+    "uptimeMonth": "99.95%",
+    "uptimeYear": "99.95%",
+    "time": 4229,
+    "timeDay": 4329,
+    "timeWeek": 4382,
+    "timeMonth": 4432,
+    "timeYear": 4229,
     "dailyMinutesDown": {
-      "2023-01-17": 0
+      "2023-01-17": 22
     }
   },
   {
