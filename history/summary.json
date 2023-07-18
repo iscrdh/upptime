@@ -6,7 +6,7 @@
     "slug": "truyol",
     "status": "down",
     "uptime": "99.32%",
-    "uptimeDay": "99.98%",
+    "uptimeDay": "99.49%",
     "uptimeWeek": "98.99%",
     "uptimeMonth": "99.50%",
     "uptimeYear": "99.32%",
@@ -16,7 +16,7 @@
     "timeMonth": 1313,
     "timeYear": 1330,
     "dailyMinutesDown": {
-      "2023-07-18": 0,
+      "2023-07-18": 7,
       "2023-07-15": 29,
       "2023-07-14": 48,
       "2023-07-13": 2,
