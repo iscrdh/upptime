@@ -11,9 +11,9 @@
     "uptimeMonth": "98.29%",
     "uptimeYear": "99.19%",
     "time": 1404,
-    "timeDay": 1269,
-    "timeWeek": 1154,
-    "timeMonth": 1200,
+    "timeDay": 1282,
+    "timeWeek": 1168,
+    "timeMonth": 1203,
     "timeYear": 1404,
     "dailyMinutesDown": {
       "2023-10-22": 23,
@@ -121,16 +121,16 @@
     "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
     "slug": "bo-truyol",
     "status": "up",
-    "uptime": "99.58%",
+    "uptime": "99.59%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "98.64%",
-    "uptimeYear": "99.58%",
-    "time": 2807,
-    "timeDay": 1009,
-    "timeWeek": 933,
+    "uptimeYear": "99.59%",
+    "time": 2803,
+    "timeDay": 1000,
+    "timeWeek": 936,
     "timeMonth": 994,
-    "timeYear": 2807,
+    "timeYear": 2803,
     "dailyMinutesDown": {
       "2023-09-30": 595,
       "2023-08-25": 46,
@@ -162,9 +162,9 @@
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.78%",
     "time": 1813,
-    "timeDay": 1976,
-    "timeWeek": 1782,
-    "timeMonth": 1661,
+    "timeDay": 1938,
+    "timeWeek": 1797,
+    "timeMonth": 1669,
     "timeYear": 1813,
     "dailyMinutesDown": {
       "2023-08-22": 21,
@@ -181,6 +181,26 @@
       "2023-02-14": 20,
       "2023-01-04": 18,
       "2023-01-02": 118
+    }
+  },
+  {
+    "name": "Lifevantage",
+    "url": "https://www.lifevantage.com/es-es/",
+    "icon": "https://icons.duckduckgo.com/ip3/www.lifevantage.com.ico",
+    "slug": "lifevantage",
+    "status": "down",
+    "uptime": "1.70%",
+    "uptimeDay": "1.70%",
+    "uptimeWeek": "1.70%",
+    "uptimeMonth": "1.70%",
+    "uptimeYear": "1.70%",
+    "time": 93,
+    "timeDay": 93,
+    "timeWeek": 93,
+    "timeMonth": 93,
+    "timeYear": 93,
+    "dailyMinutesDown": {
+      "2023-10-25": 0
     }
   }
 ]
