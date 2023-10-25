@@ -19,8 +19,8 @@ sites:
   - name: Lifevantage
     url: https://www.lifevantage.com/
 #    # method: POST
-#  - name: Beta Truyol
-#    url: https://beta.truyol.com/
+  - name: LifevantageEsp
+    url: https://www.lifevantage.com/es-es/
 #    # method: POST
 #    - name: Test Broken Site
 #    url: https://thissitedoesnotexist.koj.co
