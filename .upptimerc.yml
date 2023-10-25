@@ -16,6 +16,8 @@ sites:
 #    url: https://mail.truyol.com/
   - name: Nroot
     url: https://www.nroot.es/
+  - name: Lifevantage
+    https://www.lifevantage.com/es-es/
 #    # method: POST
 #  - name: Beta Truyol
 #    url: https://beta.truyol.com/
