@@ -20,7 +20,7 @@ sites:
     url: https://lifevantage.com/
 #    # method: POST
   - name: LifevantageEsp
-    url: https://www.lifevantage.com/es-es/
+    url: https://lifevantage.com/es-es/
 #    # method: POST
 #    - name: Test Broken Site
 #    url: https://thissitedoesnotexist.koj.co
