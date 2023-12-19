@@ -16,11 +16,11 @@ sites:
 #    url: https://mail.truyol.com/
   - name: Nroot
     url: https://www.nroot.es/
-  - name: Lifevantage
-    url: https://lifevantage.com/
+# - name: Lifevantage
+#    url: https://lifevantage.com/
 #    # method: POST
-  - name: LifevantageEsp
-    url: https://lifevantage.com/es-es/
+#  - name: LifevantageEsp
+#    url: https://lifevantage.com/es-es/
 #    # method: POST
 #    - name: Test Broken Site
 #    url: https://thissitedoesnotexist.koj.co
