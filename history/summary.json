@@ -5,15 +5,15 @@
     "icon": "https://icons.duckduckgo.com/ip3/truyol.com.ico",
     "slug": "truyol",
     "status": "up",
-    "uptime": "99.32%",
+    "uptime": "99.33%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "99.88%",
     "uptimeYear": "99.24%",
-    "time": 1373,
-    "timeDay": 1661,
-    "timeWeek": 1351,
-    "timeMonth": 1273,
+    "time": 1372,
+    "timeDay": 936,
+    "timeWeek": 1214,
+    "timeMonth": 1253,
     "timeYear": 1400,
     "dailyMinutesDown": {
       "2024-01-31": 53,
@@ -135,11 +135,11 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.53%",
-    "time": 2303,
-    "timeDay": 1093,
-    "timeWeek": 805,
-    "timeMonth": 803,
-    "timeYear": 1959,
+    "time": 2300,
+    "timeDay": 634,
+    "timeWeek": 738,
+    "timeMonth": 789,
+    "timeYear": 1952,
     "dailyMinutesDown": {
       "2023-12-09": 32,
       "2023-12-08": 32,
@@ -193,10 +193,10 @@
     "uptimeMonth": "99.95%",
     "uptimeYear": "99.83%",
     "time": 1804,
-    "timeDay": 2168,
-    "timeWeek": 1726,
-    "timeMonth": 1762,
-    "timeYear": 1812,
+    "timeDay": 1485,
+    "timeWeek": 1658,
+    "timeMonth": 1745,
+    "timeYear": 1811,
     "dailyMinutesDown": {
       "2024-02-13": 23,
       "2024-01-15": 22,
@@ -209,8 +209,7 @@
       "2023-06-24": 73,
       "2023-04-10": 22,
       "2023-04-01": 26,
-      "2023-03-29": 345,
-      "2023-02-28": 16
+      "2023-03-29": 345
     }
   }
 ]
