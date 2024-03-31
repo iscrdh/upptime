@@ -6,14 +6,14 @@
     "slug": "truyol",
     "status": "up",
     "uptime": "99.31%",
-    "uptimeDay": "70.44%",
+    "uptimeDay": "100.00%",
     "uptimeWeek": "95.78%",
     "uptimeMonth": "99.03%",
     "uptimeYear": "99.23%",
-    "time": 1357,
-    "timeDay": 1325,
-    "timeWeek": 1379,
-    "timeMonth": 1242,
+    "time": 1358,
+    "timeDay": 1523,
+    "timeWeek": 1370,
+    "timeMonth": 1250,
     "timeYear": 1387,
     "dailyMinutesDown": {
       "2024-03-29": 426,
@@ -114,8 +114,7 @@
       "2023-04-07": 21,
       "2023-04-06": 23,
       "2023-04-05": 1,
-      "2023-04-02": 22,
-      "2023-04-01": 443
+      "2023-04-02": 22
     }
   },
   {
@@ -125,15 +124,15 @@
     "slug": "bo-truyol",
     "status": "up",
     "uptime": "99.59%",
-    "uptimeDay": "97.97%",
+    "uptimeDay": "100.00%",
     "uptimeWeek": "99.71%",
     "uptimeMonth": "99.93%",
     "uptimeYear": "99.60%",
-    "time": 2191,
-    "timeDay": 614,
-    "timeWeek": 829,
-    "timeMonth": 786,
-    "timeYear": 1693,
+    "time": 2186,
+    "timeDay": 940,
+    "timeWeek": 813,
+    "timeMonth": 790,
+    "timeYear": 1681,
     "dailyMinutesDown": {
       "2024-03-29": 29,
       "2023-12-09": 32,
@@ -166,8 +165,7 @@
       "2023-08-25": 46,
       "2023-07-31": 115,
       "2023-07-14": 18,
-      "2023-06-15": 22,
-      "2023-04-01": 439
+      "2023-06-15": 22
     }
   },
   {
@@ -182,10 +180,10 @@
     "uptimeMonth": "99.35%",
     "uptimeYear": "99.85%",
     "time": 1800,
-    "timeDay": 1646,
-    "timeWeek": 1852,
-    "timeMonth": 1729,
-    "timeYear": 1813,
+    "timeDay": 2080,
+    "timeWeek": 1845,
+    "timeMonth": 1739,
+    "timeYear": 1814,
     "dailyMinutesDown": {
       "2024-03-25": 284,
       "2024-02-13": 23,
@@ -197,8 +195,7 @@
       "2023-06-27": 21,
       "2023-06-25": 234,
       "2023-06-24": 73,
-      "2023-04-10": 22,
-      "2023-04-01": 26
+      "2023-04-10": 22
     }
   }
 ]
