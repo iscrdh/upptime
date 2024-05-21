@@ -94,8 +94,7 @@
       "2023-05-27": 25,
       "2023-05-25": 22,
       "2023-05-24": 24,
-      "2023-05-23": 22,
-      "2023-05-22": 24
+      "2023-05-23": 22
     }
   },
   {
@@ -113,7 +112,7 @@
     "timeDay": 630,
     "timeWeek": 709,
     "timeMonth": 892,
-    "timeYear": 1217,
+    "timeYear": 1210,
     "dailyMinutesDown": {
       "2024-03-29": 29,
       "2023-12-09": 32,
@@ -155,18 +154,19 @@
     "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
     "slug": "nroot",
     "status": "down",
-    "uptime": "99.76%",
-    "uptimeDay": "99.99%",
-    "uptimeWeek": "100.00%",
-    "uptimeMonth": "99.14%",
-    "uptimeYear": "99.77%",
+    "uptime": "99.75%",
+    "uptimeDay": "97.47%",
+    "uptimeWeek": "99.64%",
+    "uptimeMonth": "99.05%",
+    "uptimeYear": "99.76%",
     "time": 1799,
     "timeDay": 1359,
     "timeWeek": 1443,
     "timeMonth": 1764,
     "timeYear": 1815,
     "dailyMinutesDown": {
-      "2024-05-20": 0,
+      "2024-05-21": 8,
+      "2024-05-20": 28,
       "2024-05-05": 20,
       "2024-05-02": 213,
       "2024-05-01": 146,
