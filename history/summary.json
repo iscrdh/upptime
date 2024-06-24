@@ -9,12 +9,12 @@
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
-    "uptimeYear": "99.47%",
+    "uptimeYear": "99.48%",
     "time": 1388,
-    "timeDay": 1241,
-    "timeWeek": 1430,
-    "timeMonth": 1385,
-    "timeYear": 1385,
+    "timeDay": 1219,
+    "timeWeek": 1413,
+    "timeMonth": 1383,
+    "timeYear": 1386,
     "dailyMinutesDown": {
       "2024-03-29": 426,
       "2024-01-31": 53,
@@ -89,10 +89,10 @@
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.69%",
-    "time": 1732,
-    "timeDay": 1098,
-    "timeWeek": 1171,
-    "timeMonth": 1001,
+    "time": 1731,
+    "timeDay": 900,
+    "timeWeek": 1154,
+    "timeMonth": 1006,
     "timeYear": 992,
     "dailyMinutesDown": {
       "2024-03-29": 29,
@@ -134,15 +134,15 @@
     "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
     "slug": "nroot",
     "status": "up",
-    "uptime": "99.61%",
+    "uptime": "99.62%",
     "uptimeDay": "100.00%",
-    "uptimeWeek": "97.18%",
+    "uptimeWeek": "100.00%",
     "uptimeMonth": "97.43%",
     "uptimeYear": "99.53%",
     "time": 1806,
-    "timeDay": 1720,
-    "timeWeek": 1857,
-    "timeMonth": 1900,
+    "timeDay": 1535,
+    "timeWeek": 1868,
+    "timeMonth": 1897,
     "timeYear": 1823,
     "dailyMinutesDown": {
       "2024-06-16": 284,
@@ -163,8 +163,7 @@
       "2023-08-22": 21,
       "2023-08-21": 3,
       "2023-07-23": 46,
-      "2023-06-27": 21,
-      "2023-06-25": 234
+      "2023-06-27": 21
     }
   }
 ]
