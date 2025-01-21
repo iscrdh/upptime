@@ -4,10 +4,10 @@
     "url": "https://truyol.com/",
     "icon": "https://icons.duckduckgo.com/ip3/truyol.com.ico",
     "slug": "truyol",
-    "status": "up",
-    "uptime": "99.56%",
-    "uptimeDay": "100.00%",
-    "uptimeWeek": "100.00%",
+    "status": "down",
+    "uptime": "99.57%",
+    "uptimeDay": "99.96%",
+    "uptimeWeek": "99.99%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.87%",
     "time": 1306,
@@ -16,6 +16,7 @@
     "timeMonth": 1564,
     "timeYear": 1323,
     "dailyMinutesDown": {
+      "2025-01-21": 1,
       "2024-09-19": 163,
       "2024-03-29": 426,
       "2024-01-31": 53,
@@ -27,9 +28,9 @@
     "url": "https://bo.truyol.com/",
     "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
     "slug": "bo-truyol",
-    "status": "up",
+    "status": "down",
     "uptime": "99.73%",
-    "uptimeDay": "100.00%",
+    "uptimeDay": "99.99%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.96%",
@@ -39,6 +40,7 @@
     "timeMonth": 995,
     "timeYear": 935,
     "dailyMinutesDown": {
+      "2025-01-21": 0,
       "2024-09-19": 187,
       "2024-03-29": 29
     }
