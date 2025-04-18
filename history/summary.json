@@ -11,9 +11,9 @@
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.97%",
     "time": 1399,
-    "timeDay": 1657,
-    "timeWeek": 1752,
-    "timeMonth": 1870,
+    "timeDay": 1641,
+    "timeWeek": 1781,
+    "timeMonth": 1881,
     "timeYear": 1426,
     "dailyMinutesDown": {
       "2025-01-21": 17,
@@ -32,10 +32,10 @@
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.77%",
     "time": 951,
-    "timeDay": 1003,
-    "timeWeek": 1132,
-    "timeMonth": 1043,
-    "timeYear": 987,
+    "timeDay": 889,
+    "timeWeek": 1151,
+    "timeMonth": 1048,
+    "timeYear": 986,
     "dailyMinutesDown": {
       "2025-02-02": 819,
       "2025-02-01": 172,
@@ -49,15 +49,15 @@
     "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
     "slug": "nroot",
     "status": "up",
-    "uptime": "99.71%",
+    "uptime": "99.72%",
     "uptimeDay": "100.00%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.59%",
     "time": 1752,
-    "timeDay": 1776,
-    "timeWeek": 1696,
-    "timeMonth": 1698,
+    "timeDay": 1761,
+    "timeWeek": 1752,
+    "timeMonth": 1707,
     "timeYear": 1750,
     "dailyMinutesDown": {
       "2025-02-18": 31,
@@ -76,8 +76,7 @@
       "2024-05-05": 20,
       "2024-05-02": 213,
       "2024-05-01": 146,
-      "2024-04-19": 71,
-      "2024-04-18": 19
+      "2024-04-19": 71
     }
   }
 ]
