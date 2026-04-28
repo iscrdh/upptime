@@ -11,9 +11,9 @@
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.72%",
     "time": 1522,
-    "timeDay": 1587,
-    "timeWeek": 1254,
-    "timeMonth": 1366,
+    "timeDay": 1407,
+    "timeWeek": 1296,
+    "timeMonth": 1344,
     "timeYear": 1497,
     "dailyMinutesDown": {
       "2026-03-10": 22,
@@ -24,8 +24,7 @@
       "2025-09-03": 20,
       "2025-07-28": 55,
       "2025-07-19": 386,
-      "2025-07-18": 56,
-      "2025-04-28": 601
+      "2025-07-18": 56
     }
   },
   {
@@ -34,18 +33,19 @@
     "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
     "slug": "bo-truyol",
     "status": "down",
-    "uptime": "98.86%",
+    "uptime": "98.78%",
     "uptimeDay": "0.00%",
     "uptimeWeek": "0.00%",
-    "uptimeMonth": "65.44%",
-    "uptimeYear": "96.90%",
+    "uptimeMonth": "62.15%",
+    "uptimeYear": "96.63%",
     "time": 1046,
     "timeDay": 0,
     "timeWeek": 0,
-    "timeMonth": 1026,
-    "timeYear": 1066,
+    "timeMonth": 1013,
+    "timeYear": 1067,
     "dailyMinutesDown": {
-      "2026-04-27": 27,
+      "2026-04-28": 30,
+      "2026-04-27": 1440,
       "2026-04-26": 1440,
       "2026-04-25": 1440,
       "2026-04-24": 1440,
@@ -64,8 +64,7 @@
       "2025-07-28": 36,
       "2025-07-19": 109,
       "2025-07-18": 54,
-      "2025-07-16": 46,
-      "2025-04-28": 600
+      "2025-07-16": 46
     }
   },
   {
@@ -80,10 +79,10 @@
     "uptimeMonth": "99.95%",
     "uptimeYear": "99.52%",
     "time": 1658,
-    "timeDay": 1639,
-    "timeWeek": 1355,
-    "timeMonth": 1480,
-    "timeYear": 1627,
+    "timeDay": 1637,
+    "timeWeek": 1418,
+    "timeMonth": 1459,
+    "timeYear": 1628,
     "dailyMinutesDown": {
       "2026-04-09": 24,
       "2026-02-26": 21,
@@ -99,8 +98,7 @@
       "2025-05-20": 19,
       "2025-05-13": 19,
       "2025-04-30": 83,
-      "2025-04-29": 377,
-      "2025-04-28": 761
+      "2025-04-29": 377
     }
   }
 ]
