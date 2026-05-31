@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>CriptoCartera</title>
+  <meta name="description" content="Tu cartera de cripto y la tendencia del mercado." />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0b1020" />
+
+  <!-- iOS: instalable en pantalla de inicio en modo app -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CriptoCartera" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Cabecera con valor total -->
+    <header class="topbar">
+      <div class="topbar-row">
+        <div>
+          <div class="label">Valor total</div>
+          <div id="totalValue" class="total">—</div>
+          <div id="totalChange" class="total-change">&nbsp;</div>
+        </div>
+        <div class="topbar-actions">
+          <button id="currencyToggle" class="chip" title="Cambiar moneda">USD</button>
+          <button id="refreshBtn" class="icon-btn" title="Actualizar" aria-label="Actualizar">⟳</button>
+        </div>
+      </div>
+      <div id="statusBar" class="status-bar" hidden></div>
+    </header>
+
+    <main>
+      <!-- ====== VISTA: RESUMEN ====== -->
+      <section id="view-resumen" class="view active">
+        <div id="holdingsEmpty" class="empty card">
+          <h2>Tu cartera está vacía</h2>
+          <p>Añade las monedas que tienes (por ejemplo <b>0,5 BTC</b>) y verás su valor, su variación y la tendencia del mercado en tiempo real. Sin claves ni contraseñas.</p>
+          <div class="empty-actions">
+            <button class="btn" id="addFromEmpty">+ Añadir moneda</button>
+            <button id="sampleFromEmpty" class="btn ghost">Cargar ejemplo</button>
+          </div>
+        </div>
+
+        <ul id="holdingsList" class="holdings"></ul>
+
+        <button id="addCoinBtn" class="btn block" hidden>+ Añadir moneda</button>
+      </section>
+
+      <!-- ====== VISTA: TENDENCIA ====== -->
+      <section id="view-tendencia" class="view">
+        <div class="card">
+          <div class="card-head">
+            <h2>Índice Miedo / Codicia</h2>
+            <span id="fngUpdated" class="muted small"></span>
+          </div>
+          <div class="fng">
+            <div class="gauge">
+              <svg viewBox="0 0 200 120" class="gauge-svg" aria-hidden="true">
+                <path d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#1d2740" stroke-width="16" stroke-linecap="round"/>
+                <path id="gaugeArc" d="M14 104 A86 86 0 0 1 186 104" fill="none" stroke="#16c784" stroke-width="16" stroke-linecap="round"/>
+              </svg>
+              <div class="gauge-center">
+                <div id="fngValue" class="fng-value">—</div>
+                <div id="fngLabel" class="fng-label muted">cargando…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Gráfica histórica</h2>
+            <select id="coinSelect" class="select compact" aria-label="Moneda"></select>
+          </div>
+          <div class="range-tabs" id="rangeTabs">
+            <button data-range="7" class="active">7D</button>
+            <button data-range="30">30D</button>
+            <button data-range="365">1A</button>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="priceChart" height="220"></canvas>
+            <div id="chartMsg" class="chart-msg muted"></div>
+          </div>
+          <div id="chartMeta" class="chart-meta muted small"></div>
+        </div>
+      </section>
+
+      <!-- ====== VISTA: AJUSTES ====== -->
+      <section id="view-ajustes" class="view">
+        <div class="card">
+          <div class="card-head">
+            <h2>Mi cartera</h2>
+            <span class="muted small" id="holdingsCount"></span>
+          </div>
+          <ul id="manageList" class="manage-list"></ul>
+          <button id="addCoinBtn2" class="btn block">+ Añadir moneda</button>
+        </div>
+
+        <div class="card">
+          <h2>Opciones</h2>
+          <label class="field">
+            <span>Moneda de referencia</span>
+            <select id="fiatSelect" class="select">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="card">
+          <h2>Cómo instalarla en tu iPhone</h2>
+          <ol class="steps muted small">
+            <li>Abre esta página en <b>Safari</b>.</li>
+            <li>Pulsa el botón <b>Compartir</b> (el cuadrado con la flecha).</li>
+            <li>Elige <b>«Añadir a pantalla de inicio»</b>.</li>
+            <li>Ábrela desde el icono: funcionará a pantalla completa, como una app.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h2>Acerca de</h2>
+          <p class="muted small">Precios e histórico vía API pública de Binance. Índice Miedo/Codicia vía alternative.me. No se usan claves ni se accede a tu cuenta de ningún exchange.</p>
+          <p class="muted small">¿Quieres sincronización automática de saldos desde CoinEx? Requiere un mini-servidor con una clave de <b>solo lectura</b>. Pídemelo cuando quieras.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Navegación inferior estilo iOS -->
+    <nav class="tabbar">
+      <button class="tab active" data-view="resumen">
+        <span class="tab-ico">💼</span><span>Resumen</span>
+      </button>
+      <button class="tab" data-view="tendencia">
+        <span class="tab-ico">📈</span><span>Tendencia</span>
+      </button>
+      <button class="tab" data-view="ajustes">
+        <span class="tab-ico">⚙️</span><span>Ajustes</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal: añadir / editar moneda -->
+  <div id="coinModal" class="modal" hidden>
+    <div class="modal-card">
+      <h2 id="modalTitle">Añadir moneda</h2>
+      <label class="field">
+        <span>Moneda</span>
+        <input id="coinSymbol" list="coinSuggestions" type="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ej. BTC, ETH, SOL…" />
+        <datalist id="coinSuggestions">
+          <option value="BTC">Bitcoin</option>
+          <option value="ETH">Ethereum</option>
+          <option value="USDT">Tether</option>
+          <option value="BNB">BNB</option>
+          <option value="SOL">Solana</option>
+          <option value="XRP">XRP</option>
+          <option value="ADA">Cardano</option>
+          <option value="DOGE">Dogecoin</option>
+          <option value="TRX">TRON</option>
+          <option value="MATIC">Polygon</option>
+        </datalist>
+      </label>
+      <label class="field">
+        <span>Cantidad</span>
+        <input id="coinAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 0,5" />
+      </label>
+      <div id="modalMsg" class="settings-msg small"></div>
+      <div class="row-actions">
+        <button id="modalSave" class="btn">Guardar</button>
+        <button id="modalCancel" class="btn ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
