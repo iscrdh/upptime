@@ -1,0 +1,74 @@
+version: 2
+name: btc_5m_impulse_momentum_profiles
+market: polymarket_btc_updown_5m
+
+# Single source of truth: scripts/btc5m_trade.py loads this file directly.
+# CLI flags override individual values per run.
+
+shared:
+  endpoints:
+    gamma: https://gamma-api.polymarket.com
+    clob: https://clob.polymarket.com
+  market_validation:
+    require_end_in_future_sec_min: 5
+  execution_safety:
+    skip_if_quote_stale_sec_gt: 8
+    kill_switch_consecutive_api_errors: 5
+  entry_window:
+    # Strategy: enter around ~120s before close (target 120 +/- 30).
+    min_entry_seconds_left: 60
+    max_entry_seconds_left: 150
+  session:
+    exit_before_sec: 20
+    poll_sec: 5
+    entry_timeout_min: 60
+  impulse:
+    # Confirm a real BTC spot move (since the 5m interval opened) in the
+    # same direction as the market signal before entering.
+    require_btc_impulse: true
+    btc_move_usd_min: 70
+
+profiles:
+  conservative:
+    description: "Stricter filters, lower per-trade and daily risk."
+    signal:
+      threshold_price: 0.70
+    guards:
+      max_spread: 0.03
+      min_top_ask_notional_usd: 30
+    sizing:
+      stake_usd: 5
+      max_notional_usd: 8
+      daily_max_loss_usd: 15
+      max_trades_per_day: 12
+    hedge:
+      enabled: true
+      trigger_side_price_gte: 0.95
+      trigger_seconds_left_lte: 45
+      hedge_share_of_main_pct: 3
+      hedge_notional_usd_min: 1
+      hedge_notional_usd_max: 2
+    stop_loss:
+      stop_loss_pct_from_entry: 0.25
+
+  aggressive:
+    description: "Higher frequency and higher risk mode."
+    signal:
+      threshold_price: 0.68
+    guards:
+      max_spread: 0.04
+      min_top_ask_notional_usd: 20
+    sizing:
+      stake_usd: 5
+      max_notional_usd: 15
+      daily_max_loss_usd: 30
+      max_trades_per_day: 20
+    hedge:
+      enabled: true
+      trigger_side_price_gte: 0.93
+      trigger_seconds_left_lte: 50
+      hedge_share_of_main_pct: 5
+      hedge_notional_usd_min: 1
+      hedge_notional_usd_max: 3
+    stop_loss:
+      stop_loss_pct_from_entry: 0.30
