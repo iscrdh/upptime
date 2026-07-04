@@ -9,28 +9,46 @@ shared:
   endpoints:
     gamma: https://gamma-api.polymarket.com
     clob: https://clob.polymarket.com
+  strategy:
+    # value: model probability vs. price, enter only on mispricing, hold to
+    #        resolution (no exit costs, no stop-loss noise).
+    # momentum: legacy follow-the-crowd mode (threshold + impulse, sell
+    #           before close with stop-loss).
+    mode: value
+    # taker: cross the spread (immediate). maker: rest a bid inside the
+    # spread capped at model-fair minus edge — earns the spread but may not fill.
+    entry_style: taker
+    # exit_style defaults to hold for value and sell for momentum; uncomment
+    # to force one: exit_style: hold
+  value:
+    edge_min: 0.05            # min (model prob - ask - fee_buffer) to enter
+    fee_buffer: 0.01          # covers taker fees + adverse selection
+    vol_lookback_min: 60      # minutes of 1m candles for volatility estimate
+    max_entry_price: 0.95     # never buy above this (tiny payoff, fee-dominated)
+    resolution_timeout_sec: 300
   market_validation:
     require_end_in_future_sec_min: 5
   execution_safety:
     skip_if_quote_stale_sec_gt: 8
     kill_switch_consecutive_api_errors: 5
   entry_window:
-    # Strategy: enter around ~120s before close (target 120 +/- 30).
     min_entry_seconds_left: 60
-    max_entry_seconds_left: 150
+    max_entry_seconds_left: 180
   session:
     exit_before_sec: 20
     poll_sec: 5
     entry_timeout_min: 60
   impulse:
-    # Confirm a real BTC spot move (since the 5m interval opened) in the
-    # same direction as the market signal before entering.
+    # momentum mode only: confirm a real BTC spot move in the same
+    # direction as the market signal before entering.
     require_btc_impulse: true
     btc_move_usd_min: 70
 
 profiles:
   conservative:
     description: "Stricter filters, lower per-trade and daily risk."
+    value:
+      edge_min: 0.05
     signal:
       threshold_price: 0.70
     guards:
@@ -53,6 +71,8 @@ profiles:
 
   aggressive:
     description: "Higher frequency and higher risk mode."
+    value:
+      edge_min: 0.03
     signal:
       threshold_price: 0.68
     guards:

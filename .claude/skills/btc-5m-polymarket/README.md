@@ -1,9 +1,33 @@
 # BTC 5m Polymarket — Claude Code skill
 
 Claude-optimized port of [Novals83/5min-btc-polymarket](https://github.com/Novals83/5min-btc-polymarket)
-(originally an OpenClaw skill). Same strategy — momentum into close on
-Polymarket's BTC 5-minute Up/Down markets — rebuilt to be self-contained and
-to actually enforce every guard the strategy describes.
+(originally an OpenClaw skill), rebuilt to be self-contained, to actually
+enforce every guard the strategy describes — and extended with a **value
+mode** that fixes the economics of the original momentum design.
+
+## Why value mode (the default)
+
+The original strategy buys the leading side at ≥0.70 and sells ~20s before
+close. That pays the spread twice per trade and buys "because the price is
+high" — which is not an edge. Value mode instead:
+
+1. **Prices the market itself**: `P(up) = Φ(move / (σ₁ₘ√(τ/60)))` from the
+   observed BTC move, time remaining and realized 1-minute volatility.
+2. **Enters only on mispricing**: model probability must exceed the ask by
+   `edge_min` after a fee buffer — on either side, including the cheap one.
+3. **Holds to resolution**: winners redeem at $1, so there is no exit
+   spread/slippage and no stop-loss triggered by noise. Expected cost per
+   trade drops from two crossings to at most one (zero with maker entry).
+4. **Measures instead of promising**: `scripts/btc5m_collect.py` records
+   model vs. outcome for every 5m slot without placing orders, and
+   `scripts/btc5m_eval.py` reports calibration (Brier score) and simulated
+   PnL across edge thresholds. If the grid isn't consistently positive,
+   there is no edge and the honest move is not to trade.
+
+None of this guarantees profit — counterparties in these markets are fast
+bots. It guarantees you pay less per trade, only act when a model says the
+price is wrong, and can verify empirically whether that model is right
+before risking money.
 
 ## What changed vs. the original
 
@@ -39,10 +63,18 @@ Requires Python 3.10+.
 ## Quick start
 
 ```bash
-# Safe dry-run (simulated fills, real market data)
+# 0) Recommended first: collect data for a day and check if there IS an edge
+.venv/bin/python scripts/btc5m_collect.py --hours 24
+.venv/bin/python scripts/btc5m_eval.py
+
+# Safe dry-run (simulated fills, real market data; value mode by default)
 scripts/btc5m_ctl.sh start --profile conservative
 scripts/btc5m_ctl.sh logs
 scripts/btc5m_ctl.sh report
+
+# Legacy momentum mode, maker entry, custom edge — all overridable
+scripts/btc5m_ctl.sh start --profile aggressive --mode momentum
+scripts/btc5m_ctl.sh start --profile conservative --entry-style maker --edge-min 0.07
 
 # Live (requires .env with PM_PRIVATE_KEY / PM_FUNDER; see SKILL.md)
 scripts/btc5m_ctl.sh start --profile conservative --execute

@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-"""Self-contained BTC 5m Up/Down momentum runner for Polymarket.
+"""Self-contained BTC 5m Up/Down runner for Polymarket.
 
-One invocation = one trade session:
-  1. Wait for the current 5m market to enter the entry window.
-  2. Confirm momentum (CLOB ask >= threshold AND real BTC spot impulse in the
-     same direction) and pass spread/liquidity/staleness/daily-risk guards.
-  3. Open a marketable-limit BUY (FAK) on the stronger side.
-  4. Optionally micro-hedge the opposite side on extreme skew.
-  5. Monitor for stop-loss, then close before market end (FAK, with GTC
-     limit fallback and force-close escalation).
+Two strategy modes (config `shared.strategy.mode` or --mode):
 
-Dry-run is the default; live orders require --execute and Polymarket
-credentials in the environment (PM_PRIVATE_KEY, PM_FUNDER, optionally
-PM_API_KEY/PM_API_SECRET/PM_API_PASSPHRASE — derived automatically when
-absent).
+- value (default): estimate the true probability that BTC finishes the 5m
+  interval up, from the observed move, time remaining and recent realized
+  volatility (Brownian-motion closed form). Enter only when the market ask
+  is cheaper than the model probability by at least `edge_min` (after a fee
+  buffer), on either side. Hold to resolution — winning shares pay $1, so
+  there is no exit spread/slippage and no noise-triggered stop-loss.
+- momentum (legacy): buy the leading side when its ask >= threshold and the
+  BTC spot impulse agrees, then sell shortly before close with a stop-loss.
+
+Entry can be `taker` (marketable FAK) or `maker` (rest a GTC bid inside the
+spread, capped at model-fair minus edge, so any fill keeps the required
+edge and earns the spread instead of paying it).
+
+One invocation = one trade session. Dry-run is the default; live orders
+require --execute and Polymarket credentials in the environment
+(PM_PRIVATE_KEY, PM_FUNDER, optionally PM_API_KEY/PM_API_SECRET/
+PM_API_PASSPHRASE — derived automatically when absent).
 
 Output: compact JSON event lines while running, one indented JSON report at
 the end (parsed by scripts/btc5m_report.py).
@@ -22,6 +28,7 @@ the end (parsed by scripts/btc5m_report.py).
 import argparse
 import datetime as dt
 import json
+import math
 import os
 import signal
 import sys
@@ -86,6 +93,10 @@ def parse_json_field(v):
     return v
 
 
+def norm_cdf(x: float) -> float:
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -102,6 +113,9 @@ def load_config(path: Path, profile: str) -> dict[str, Any]:
     def sec(d, k):
         return (d.get(k) or {})
 
+    value = dict(sec(shared, 'value'))
+    value.update(sec(p, 'value'))
+
     cfg = {
         'gamma_base': sec(shared, 'endpoints').get('gamma', 'https://gamma-api.polymarket.com'),
         'clob_base': sec(shared, 'endpoints').get('clob', 'https://clob.polymarket.com'),
@@ -109,10 +123,18 @@ def load_config(path: Path, profile: str) -> dict[str, Any]:
         'quote_stale_sec_max': sec(shared, 'execution_safety').get('skip_if_quote_stale_sec_gt', 8),
         'kill_switch_errors': sec(shared, 'execution_safety').get('kill_switch_consecutive_api_errors', 5),
         'min_entry_seconds_left': sec(shared, 'entry_window').get('min_entry_seconds_left', 60),
-        'max_entry_seconds_left': sec(shared, 'entry_window').get('max_entry_seconds_left', 150),
+        'max_entry_seconds_left': sec(shared, 'entry_window').get('max_entry_seconds_left', 180),
         'exit_before_sec': sec(shared, 'session').get('exit_before_sec', 20),
         'poll_sec': sec(shared, 'session').get('poll_sec', 5),
         'entry_timeout_min': sec(shared, 'session').get('entry_timeout_min', 60),
+        'mode': sec(shared, 'strategy').get('mode', 'value'),
+        'entry_style': sec(shared, 'strategy').get('entry_style', 'taker'),
+        'exit_style': sec(shared, 'strategy').get('exit_style'),  # None -> by mode
+        'edge_min': value.get('edge_min', 0.05),
+        'fee_buffer': value.get('fee_buffer', 0.01),
+        'vol_lookback_min': value.get('vol_lookback_min', 60),
+        'max_entry_price': value.get('max_entry_price', 0.95),
+        'resolution_timeout_sec': value.get('resolution_timeout_sec', 300),
         'require_btc_impulse': sec(shared, 'impulse').get('require_btc_impulse', True),
         'btc_move_usd_min': sec(shared, 'impulse').get('btc_move_usd_min', 70),
         'threshold': sec(p, 'signal').get('threshold_price', 0.70),
@@ -171,16 +193,20 @@ class MarketData:
         return mm
 
     @staticmethod
+    def up_index(outcomes) -> int:
+        labs = [str(x).lower() for x in (outcomes or [])[:2]]
+        if len(labs) >= 2 and ('up' in labs[1] or 'yes' in labs[1]):
+            return 1
+        return 0
+
+    @staticmethod
     def side_tokens(market: dict[str, Any]) -> tuple[str, str]:
         outcomes = parse_json_field(market.get('outcomes')) or []
         token_ids = parse_json_field(market.get('clobTokenIds')) or []
         if len(token_ids) < 2:
             raise RuntimeError('missing clobTokenIds')
-        up_i, down_i = 0, 1
-        labs = [str(x).lower() for x in outcomes[:2]] if isinstance(outcomes, list) else []
-        if len(labs) >= 2 and ('up' in labs[1] or 'yes' in labs[1]):
-            up_i, down_i = 1, 0
-        return str(token_ids[up_i]), str(token_ids[down_i])
+        up_i = MarketData.up_index(outcomes)
+        return str(token_ids[up_i]), str(token_ids[1 - up_i])
 
     def book_top(self, token_id: str) -> dict[str, Any]:
         """Best bid/ask with sizes plus quote age in seconds (when available)."""
@@ -212,7 +238,7 @@ class MarketData:
         }
 
 
-def btc_impulse_usd(bucket_start: int, http: requests.Session) -> Optional[dict[str, float]]:
+def btc_impulse_usd(bucket_start: int, http: requests.Session) -> Optional[dict[str, Any]]:
     """BTC spot move (USD) since the 5m interval opened; None if all feeds fail."""
     try:
         r = http.get(
@@ -247,6 +273,44 @@ def btc_impulse_usd(bucket_start: int, http: requests.Session) -> Optional[dict[
     except Exception:
         pass
     return None
+
+
+def estimate_vol_1m_usd(http: requests.Session, lookback_min: int = 60) -> Optional[float]:
+    """Zero-drift RMS of 1-minute BTC price changes (USD) over the lookback."""
+    closes: list[float] = []
+    try:
+        r = http.get(
+            'https://api.binance.com/api/v3/klines',
+            params={'symbol': 'BTCUSDT', 'interval': '1m', 'limit': lookback_min + 1},
+            timeout=6,
+        )
+        r.raise_for_status()
+        closes = [float(k[4]) for k in r.json()]
+    except Exception:
+        try:
+            end = now_utc()
+            start = end - dt.timedelta(minutes=lookback_min + 1)
+            r = http.get(
+                'https://api.exchange.coinbase.com/products/BTC-USD/candles',
+                params={'granularity': 60, 'start': start.isoformat(), 'end': end.isoformat()},
+                timeout=6,
+            )
+            r.raise_for_status()
+            rows = sorted(r.json(), key=lambda x: x[0])
+            closes = [float(row[4]) for row in rows]
+        except Exception:
+            return None
+    if len(closes) < 10:
+        return None
+    diffs = [b - a for a, b in zip(closes, closes[1:])]
+    rms = math.sqrt(sum(d * d for d in diffs) / len(diffs))
+    return max(rms, 1e-6)
+
+
+def model_prob_up(move_usd: float, vol_1m_usd: float, seconds_left: float) -> float:
+    """P(BTC finishes the interval above its open) under driftless Brownian motion."""
+    sigma_tau = max(1e-9, vol_1m_usd * math.sqrt(max(1.0, seconds_left) / 60.0))
+    return norm_cdf(move_usd / sigma_tau)
 
 
 # ---------------------------------------------------------------------------
@@ -298,6 +362,9 @@ class Executor:
         price = clamp(best_ask + BUY_SLIPPAGE, 0.01, 0.99)
         return self._post(token_id, price, amount_usd / price, BUY, FAK)
 
+    def gtc_buy(self, token_id: str, price: float, size: float) -> dict[str, Any]:
+        return self._post(token_id, price, size, BUY, OrderType.GTC)
+
     def fak_sell(self, token_id: str, best_bid: float, shares: float) -> dict[str, Any]:
         price = clamp(best_bid - SELL_SLIPPAGE, 0.01, 0.99)
         return self._post(token_id, price, shares, SELL, FAK)
@@ -305,21 +372,33 @@ class Executor:
     def limit_sell(self, token_id: str, price: float, shares: float) -> dict[str, Any]:
         return self._post(token_id, price, shares, SELL, OrderType.GTC)
 
+    def get_order_info(self, order_id: str) -> dict[str, Any]:
+        if not self.execute or not order_id:
+            return {}
+        try:
+            return self.client.get_order(order_id) or {}
+        except Exception:
+            return {}
+
     def order_status(self, order_id: str, wait_sec: float, step_sec: float = 1.0) -> str:
         if not self.execute or not order_id:
             return ''
         deadline = time.time() + max(0.0, wait_sec)
         st = ''
         while time.time() <= deadline:
-            try:
-                o = self.client.get_order(order_id)
-                st = str((o or {}).get('status') or '').upper()
-                if st and st not in ('LIVE', 'OPEN'):
-                    return st
-            except Exception:
-                pass
+            st = str(self.get_order_info(order_id).get('status') or '').upper()
+            if st and st not in ('LIVE', 'OPEN'):
+                return st
             time.sleep(max(0.2, step_sec))
         return st
+
+    def cancel_order(self, order_id: str) -> Optional[dict[str, Any]]:
+        if not self.execute or not order_id:
+            return None
+        try:
+            return self.client.cancel(order_id=order_id)
+        except Exception as e:
+            return {'error': str(e)}
 
     def cancel_token_orders(self, token_id: str) -> Optional[dict[str, Any]]:
         if not self.execute:
@@ -379,7 +458,7 @@ class DailyState:
 
 
 # ---------------------------------------------------------------------------
-# Session
+# Entry
 # ---------------------------------------------------------------------------
 
 def parse_args() -> argparse.Namespace:
@@ -387,16 +466,20 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument('--config', default=str(DEFAULT_CONFIG))
     ap.add_argument('--profile', choices=['conservative', 'aggressive'], default='conservative')
     ap.add_argument('--runtime-dir', default=str(DEFAULT_RUNTIME))
+    ap.add_argument('--mode', choices=['value', 'momentum'], default=None)
+    ap.add_argument('--entry-style', choices=['taker', 'maker'], default=None)
+    ap.add_argument('--exit-style', choices=['hold', 'sell'], default=None)
+    ap.add_argument('--edge-min', type=float, default=None, help='value mode: min model edge over ask (after fee buffer)')
     ap.add_argument('--threshold', type=float, default=None)
     ap.add_argument('--stake-usd', type=float, default=None)
-    ap.add_argument('--stop-loss-pct', type=float, default=None, help='0.25 = close at -25%% from entry price')
+    ap.add_argument('--stop-loss-pct', type=float, default=None, help='0.25 = close at -25%% from entry price (sell mode)')
     ap.add_argument('--exit-before-sec', type=int, default=None)
     ap.add_argument('--min-entry-seconds-left', type=int, default=None)
     ap.add_argument('--max-entry-seconds-left', type=int, default=None)
     ap.add_argument('--entry-timeout-min', type=int, default=None)
     ap.add_argument('--poll-sec', type=float, default=None)
-    ap.add_argument('--btc-move-usd', type=float, default=None, help='min BTC spot move to confirm momentum')
-    ap.add_argument('--no-impulse-check', action='store_true', help='disable the BTC spot impulse confirmation')
+    ap.add_argument('--btc-move-usd', type=float, default=None, help='momentum mode: min BTC spot move')
+    ap.add_argument('--no-impulse-check', action='store_true', help='momentum mode: disable BTC impulse confirmation')
     ap.add_argument('--close-retry-max', type=int, default=18)
     ap.add_argument('--close-retry-delay-sec', type=float, default=2.0)
     ap.add_argument('--execute', action='store_true', help='place real orders (default: dry-run)')
@@ -406,6 +489,10 @@ def parse_args() -> argparse.Namespace:
 def build_settings(args: argparse.Namespace) -> dict[str, Any]:
     cfg = load_config(Path(args.config), args.profile)
     overrides = {
+        'mode': args.mode,
+        'entry_style': args.entry_style,
+        'exit_style': args.exit_style,
+        'edge_min': args.edge_min,
         'threshold': args.threshold,
         'stake_usd': args.stake_usd,
         'stop_loss_pct': args.stop_loss_pct,
@@ -421,6 +508,8 @@ def build_settings(args: argparse.Namespace) -> dict[str, Any]:
             cfg[k] = v
     if args.no_impulse_check:
         cfg['require_btc_impulse'] = False
+    if not cfg.get('exit_style'):
+        cfg['exit_style'] = 'hold' if cfg['mode'] == 'value' else 'sell'
     cfg['stake_usd'] = min(float(cfg['stake_usd']), float(cfg['max_notional_usd']))
     return cfg
 
@@ -429,6 +518,7 @@ def find_entry(md: MarketData, cfg: dict[str, Any], deadline: float,
                poll_sec: float, kill_switch: int) -> Optional[dict[str, Any]]:
     """Poll until one side qualifies. Returns entry decision dict or None on timeout."""
     api_errors = 0
+    vol_cache = {'t': 0.0, 'v': None}
     while time.time() < deadline:
         try:
             m = md.resolve_current_5m_market(cfg['require_end_in_future_sec_min'])
@@ -463,39 +553,70 @@ def find_entry(md: MarketData, cfg: dict[str, Any], deadline: float,
                     emit({'status': 'skip_quote_stale', 'side': name, 'age_sec': round(side_book['age_sec'], 1)})
                     side_book['ask'] = None  # disqualify this side for this poll
 
-            candidates = []
-            if up['ask'] is not None and up['ask'] >= cfg['threshold']:
-                candidates.append(('UP', up_t, up))
-            if dn['ask'] is not None and dn['ask'] >= cfg['threshold']:
-                candidates.append(('DOWN', dn_t, dn))
-            if not candidates:
-                time.sleep(poll_sec)
-                continue
+            model = None
+            candidates: list[tuple[str, str, dict, float]] = []  # side, token, book, rank
 
-            impulse = None
-            if cfg['require_btc_impulse']:
-                bucket = int(m['_end_ts']) - 300
-                impulse = btc_impulse_usd(bucket, md.http)
-                if impulse is None:
+            if cfg['mode'] == 'value':
+                impulse = btc_impulse_usd(int(m['_end_ts']) - 300, md.http)
+                if time.time() - vol_cache['t'] > 60:
+                    vol_cache['v'] = estimate_vol_1m_usd(md.http, cfg['vol_lookback_min'])
+                    vol_cache['t'] = time.time()
+                vol = vol_cache['v']
+                if impulse is None or vol is None:
                     api_errors += 1
-                    emit({'status': 'skip_impulse_feed_unavailable', 'api_errors': api_errors})
+                    emit({'status': 'skip_model_feed_unavailable', 'api_errors': api_errors})
                     if api_errors >= kill_switch:
                         raise GracefulExit('kill_switch_api_errors')
                     time.sleep(poll_sec)
                     continue
-                move = impulse['move']
-                candidates = [
-                    c for c in candidates
-                    if (c[0] == 'UP' and move >= cfg['btc_move_usd_min'])
-                    or (c[0] == 'DOWN' and move <= -cfg['btc_move_usd_min'])
-                ]
+                p_up = model_prob_up(impulse['move'], vol, sec_left)
+                model = {'p_up': round(p_up, 4), 'btc_move_usd': round(impulse['move'], 2),
+                         'vol_1m_usd': round(vol, 2), 'seconds_left': round(sec_left, 1),
+                         'source': impulse['source']}
+                for side, token, book, fair in (('UP', up_t, up, p_up), ('DOWN', dn_t, dn, 1.0 - p_up)):
+                    ask = book['ask']
+                    if ask is None or ask > cfg['max_entry_price']:
+                        continue
+                    edge = fair - ask - cfg['fee_buffer']
+                    if edge >= cfg['edge_min']:
+                        candidates.append((side, token, book, edge))
                 if not candidates:
-                    emit({'status': 'skip_no_impulse_agreement', 'btc_move_usd': round(move, 2),
-                          'required_usd': cfg['btc_move_usd_min'], 'source': impulse['source']})
+                    emit({'status': 'skip_no_edge', **model,
+                          'up_ask': up['ask'], 'down_ask': dn['ask'],
+                          'edge_min': cfg['edge_min']})
                     time.sleep(poll_sec)
                     continue
+            else:  # momentum (legacy)
+                if up['ask'] is not None and up['ask'] >= cfg['threshold']:
+                    candidates.append(('UP', up_t, up, up['ask']))
+                if dn['ask'] is not None and dn['ask'] >= cfg['threshold']:
+                    candidates.append(('DOWN', dn_t, dn, dn['ask']))
+                if not candidates:
+                    time.sleep(poll_sec)
+                    continue
+                if cfg['require_btc_impulse']:
+                    impulse = btc_impulse_usd(int(m['_end_ts']) - 300, md.http)
+                    if impulse is None:
+                        api_errors += 1
+                        emit({'status': 'skip_impulse_feed_unavailable', 'api_errors': api_errors})
+                        if api_errors >= kill_switch:
+                            raise GracefulExit('kill_switch_api_errors')
+                        time.sleep(poll_sec)
+                        continue
+                    move = impulse['move']
+                    model = {'btc_move_usd': round(move, 2), 'source': impulse['source']}
+                    candidates = [
+                        c for c in candidates
+                        if (c[0] == 'UP' and move >= cfg['btc_move_usd_min'])
+                        or (c[0] == 'DOWN' and move <= -cfg['btc_move_usd_min'])
+                    ]
+                    if not candidates:
+                        emit({'status': 'skip_no_impulse_agreement', 'btc_move_usd': round(move, 2),
+                              'required_usd': cfg['btc_move_usd_min'], 'source': impulse['source']})
+                        time.sleep(poll_sec)
+                        continue
 
-            side, token, book = max(candidates, key=lambda c: c[2]['ask'])
+            side, token, book, rank = max(candidates, key=lambda c: c[3])
 
             if book['spread'] is not None and book['spread'] > cfg['max_spread']:
                 emit({'status': 'skip_spread_too_wide', 'side': side, 'spread': round(book['spread'], 4)})
@@ -508,11 +629,17 @@ def find_entry(md: MarketData, cfg: dict[str, Any], deadline: float,
                 time.sleep(poll_sec)
                 continue
 
+            entry_model = None
+            if model is not None:
+                entry_model = dict(model)
+                if cfg['mode'] == 'value':
+                    entry_model['edge'] = round(rank, 4)
+                    entry_model['fair'] = round(model['p_up'] if side == 'UP' else 1.0 - model['p_up'], 4)
             return {
                 'market': m, 'slug': slug, 'side': side, 'token_id': token,
                 'opp_token_id': dn_t if side == 'UP' else up_t,
-                'best_ask': book['ask'], 'seconds_left': sec_left,
-                'impulse': impulse,
+                'best_ask': book['ask'], 'book': book, 'seconds_left': sec_left,
+                'model': entry_model,
             }
         except GracefulExit:
             raise
@@ -522,6 +649,104 @@ def find_entry(md: MarketData, cfg: dict[str, Any], deadline: float,
             if api_errors >= kill_switch:
                 raise GracefulExit('kill_switch_api_errors')
         time.sleep(poll_sec)
+    return None
+
+
+def maker_entry(ex: Executor, md: MarketData, cfg: dict[str, Any],
+                entry: dict[str, Any]) -> Optional[dict[str, Any]]:
+    """Rest a GTC bid inside the spread instead of crossing it.
+
+    The bid is capped at model-fair minus edge_min (value mode), so a fill can
+    only happen at a price that keeps the required edge. Returns fill info or
+    None if unfilled when the entry window closes.
+    """
+    token = entry['token_id']
+    end_ts = entry['market']['_end_ts']
+    fair = (entry.get('model') or {}).get('fair')
+    cap = (fair - cfg['edge_min'] - cfg['fee_buffer']) if fair else entry['best_ask']
+    bid = entry['book']['bid'] or 0.01
+    limit_px = round(clamp(min(bid + 0.01, cap, entry['best_ask']), 0.01, 0.99), 2)
+    if limit_px < 0.02:
+        return None
+    size = round(cfg['stake_usd'] / limit_px, 2)
+    emit({'status': 'maker_bid_posted', 'side': entry['side'], 'price': limit_px, 'size': size})
+
+    order_id = None
+    if ex.execute:
+        post = ex.gtc_buy(token, limit_px, size)
+        if is_matched(post):
+            shares, cost = post_amounts(post, BUY)
+            return {'shares': shares, 'cost': cost, 'order_id': post.get('orderID'),
+                    'tx': (post.get('transactionsHashes') or [None])[0], 'price': limit_px,
+                    'style': 'maker_immediate'}
+        if not post.get('success'):
+            emit({'status': 'maker_post_failed', 'error': str(post.get('errorMsg') or '')[:200]})
+            return None
+        order_id = str(post.get('orderID') or '')
+
+    poll = max(1.0, min(cfg['poll_sec'], 3.0))
+    while end_ts - time.time() > cfg['min_entry_seconds_left']:
+        if ex.execute:
+            info = ex.get_order_info(order_id)
+            st = str(info.get('status') or '').upper()
+            if st == 'MATCHED':
+                shares = float(info.get('size_matched') or info.get('sizeMatched') or size)
+                return {'shares': shares, 'cost': round(shares * limit_px, 6),
+                        'order_id': order_id, 'tx': None, 'price': limit_px, 'style': 'maker'}
+            if st in ('CANCELED', 'CANCELLED'):
+                return None
+        else:
+            try:
+                ask = md.book_top(token)['ask']
+            except Exception:
+                ask = None
+            if ask is not None and ask <= limit_px:
+                return {'shares': size, 'cost': round(size * limit_px, 6),
+                        'order_id': None, 'tx': None, 'price': limit_px,
+                        'style': 'maker_simulated'}
+        time.sleep(poll)
+
+    # window closed: cancel and keep whatever was partially filled
+    if ex.execute and order_id:
+        ex.cancel_order(order_id)
+        info = ex.get_order_info(order_id)
+        filled = float(info.get('size_matched') or info.get('sizeMatched') or 0)
+        if filled > 0:
+            return {'shares': filled, 'cost': round(filled * limit_px, 6),
+                    'order_id': order_id, 'tx': None, 'price': limit_px,
+                    'style': 'maker_partial'}
+    emit({'status': 'maker_unfilled', 'price': limit_px})
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Exit
+# ---------------------------------------------------------------------------
+
+def wait_for_resolution(md: MarketData, cfg: dict[str, Any],
+                        opened: dict[str, Any]) -> Optional[str]:
+    """Sleep to market end, then poll Gamma until it resolves. 'UP'/'DOWN'/None."""
+    end_ts = opened['market_end_ts']
+    while end_ts + 3 - time.time() > 0:
+        time.sleep(min(30.0, max(0.5, end_ts + 3 - time.time())))
+    deadline = end_ts + cfg['resolution_timeout_sec']
+    while time.time() < deadline:
+        try:
+            ev = md.fetch_event(opened['market_slug'])
+            mkts = (ev or {}).get('markets') or []
+            if mkts:
+                m0 = mkts[0]
+                prices = parse_json_field(m0.get('outcomePrices')) or []
+                outcomes = parse_json_field(m0.get('outcomes')) or []
+                if len(prices) >= 2:
+                    p = [float(x) for x in prices[:2]]
+                    if max(p) >= 0.999 and min(p) <= 0.001:
+                        ui = MarketData.up_index(outcomes)
+                        winner_i = 0 if p[0] > p[1] else 1
+                        return 'UP' if winner_i == ui else 'DOWN'
+        except Exception as e:
+            emit({'status': 'resolution_poll_error', 'error': str(e)})
+        time.sleep(10)
     return None
 
 
@@ -651,6 +876,10 @@ def close_position(ex: Executor, md: MarketData, opened: dict[str, Any],
     }
 
 
+# ---------------------------------------------------------------------------
+# Session
+# ---------------------------------------------------------------------------
+
 def main() -> None:
     signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGINT, _signal_handler)
@@ -670,7 +899,8 @@ def main() -> None:
                    'profile': args.profile, 'execute': args.execute,
                    'hedge': cfg['hedge']},
     }
-    emit({'status': 'session_start', 'profile': args.profile,
+    emit({'status': 'session_start', 'profile': args.profile, 'mode': cfg['mode'],
+          'entry_style': cfg['entry_style'], 'exit_style': cfg['exit_style'],
           'execute': args.execute, 'stake_usd': cfg['stake_usd']})
 
     cap_reason = daily.check_caps(cfg['max_trades_per_day'], cfg['daily_max_loss_usd'])
@@ -682,68 +912,89 @@ def main() -> None:
 
     opened = None
     close_reason = None
+    outcome = None
     try:
         deadline = time.time() + cfg['entry_timeout_min'] * 60
-        entry = find_entry(md, cfg, deadline, cfg['poll_sec'], cfg['kill_switch_errors'])
-        if not entry:
+        while not opened and time.time() < deadline:
+            entry = find_entry(md, cfg, deadline, cfg['poll_sec'], cfg['kill_switch_errors'])
+            if not entry:
+                break
+
+            if cfg['entry_style'] == 'maker':
+                fill = maker_entry(ex, md, cfg, entry)
+                if not fill:
+                    continue  # window closed unfilled — rescan for the next signal
+                shares, cost = fill['shares'], fill['cost']
+                open_order_id, open_tx = fill.get('order_id'), fill.get('tx')
+            else:
+                post = ex.marketable_buy(entry['token_id'], entry['best_ask'], cfg['stake_usd'])
+                if not is_matched(post):
+                    emit({'status': 'open_failed_retry',
+                          'error': str(post.get('errorMsg') or post.get('status') or '')[:200]})
+                    time.sleep(cfg['poll_sec'])
+                    continue
+                shares, cost = post_amounts(post, BUY)
+                if not ex.execute:
+                    px = entry['best_ask']
+                    shares = round(cfg['stake_usd'] / px, 2)
+                    cost = round(shares * px, 6)
+                open_order_id = post.get('orderID')
+                open_tx = (post.get('transactionsHashes') or [None])[0]
+
+            if shares <= 0:
+                continue
+            opened = {
+                'opened_at': ts_utc(),
+                'market_slug': entry['slug'],
+                'market_end_ts': entry['market']['_end_ts'],
+                'side': entry['side'],
+                'token_id': entry['token_id'],
+                'opp_token_id': entry['opp_token_id'],
+                'entry_price': round(cost / shares, 6) if shares else entry['best_ask'],
+                'shares': shares,
+                'cost_usdc': cost,
+                'open_order_id': open_order_id,
+                'open_tx': open_tx,
+                'entry_style': cfg['entry_style'],
+                'model': entry['model'],
+            }
+            report['opened'] = opened
+            emit({'status': 'opened', 'side': opened['side'], 'slug': opened['market_slug'],
+                  'entry_price': opened['entry_price'], 'shares': shares,
+                  'cost_usdc': cost, 'model': entry['model']})
+
+        if not opened:
             report.update({'finished_at': ts_utc(), 'result': 'no_entry_timeout'})
             print(json.dumps(report, ensure_ascii=False, indent=2))
             return
 
-        post = ex.marketable_buy(entry['token_id'], entry['best_ask'], cfg['stake_usd'])
-        if not is_matched(post):
-            report.update({'finished_at': ts_utc(), 'result': 'open_failed',
-                           'open_post': post})
-            print(json.dumps(report, ensure_ascii=False, indent=2))
-            return
-
-        shares, cost = post_amounts(post, BUY)
-        if not ex.execute:
-            # simulate the fill at the marketable price
-            px = round(clamp(entry['best_ask'] + BUY_SLIPPAGE, 0.01, 0.99), 2)
-            shares = round(cfg['stake_usd'] / px, 2)
-            cost = round(shares * entry['best_ask'], 6)
-        entry_price = (cost / shares) if shares else entry['best_ask']
-        opened = {
-            'opened_at': ts_utc(),
-            'market_slug': entry['slug'],
-            'market_end_ts': entry['market']['_end_ts'],
-            'side': entry['side'],
-            'token_id': entry['token_id'],
-            'opp_token_id': entry['opp_token_id'],
-            'entry_price': round(entry_price, 6),
-            'shares': shares,
-            'cost_usdc': cost,
-            'open_order_id': post.get('orderID'),
-            'open_tx': (post.get('transactionsHashes') or [None])[0],
-            'btc_impulse': entry['impulse'],
-        }
-        report['opened'] = opened
-        emit({'status': 'opened', 'side': opened['side'], 'slug': opened['market_slug'],
-              'entry_price': opened['entry_price'], 'shares': shares, 'cost_usdc': cost})
-
-        sl_price = opened['entry_price'] * (1.0 - cfg['stop_loss_pct'])
-        report['stop_loss_price'] = round(sl_price, 6)
-        end_ts = opened['market_end_ts']
-
-        while True:
-            sec_left = end_ts - time.time()
-            if sec_left <= cfg['exit_before_sec']:
-                close_reason = f"time_exit_{cfg['exit_before_sec']}s_before_end"
-                break
-            bid = None
-            try:
-                bid = md.book_top(opened['token_id'])['bid']
-            except Exception as e:
-                emit({'status': 'monitor_error', 'error': str(e)})
-            if bid is not None:
-                report['last_bid'] = bid
-                report['last_check_at'] = ts_utc()
-                if bid <= sl_price:
-                    close_reason = f"stop_loss_{int(cfg['stop_loss_pct'] * 100)}pct"
+        if cfg['exit_style'] == 'hold':
+            emit({'status': 'holding_to_resolution',
+                  'seconds_to_end': round(opened['market_end_ts'] - time.time(), 1)})
+            outcome = wait_for_resolution(md, cfg, opened)
+            close_reason = 'held_to_resolution'
+        else:
+            sl_price = opened['entry_price'] * (1.0 - cfg['stop_loss_pct'])
+            report['stop_loss_price'] = round(sl_price, 6)
+            end_ts = opened['market_end_ts']
+            while True:
+                sec_left = end_ts - time.time()
+                if sec_left <= cfg['exit_before_sec']:
+                    close_reason = f"time_exit_{cfg['exit_before_sec']}s_before_end"
                     break
-                maybe_hedge(ex, md, cfg, opened, bid, sec_left, report)
-            time.sleep(cfg['poll_sec'])
+                bid = None
+                try:
+                    bid = md.book_top(opened['token_id'])['bid']
+                except Exception as e:
+                    emit({'status': 'monitor_error', 'error': str(e)})
+                if bid is not None:
+                    report['last_bid'] = bid
+                    report['last_check_at'] = ts_utc()
+                    if bid <= sl_price:
+                        close_reason = f"stop_loss_{int(cfg['stop_loss_pct'] * 100)}pct"
+                        break
+                    maybe_hedge(ex, md, cfg, opened, bid, sec_left, report)
+                time.sleep(cfg['poll_sec'])
     except GracefulExit as e:
         if not opened:
             report.update({'finished_at': ts_utc(), 'result': 'aborted',
@@ -753,11 +1004,27 @@ def main() -> None:
         close_reason = f'aborted_{e}'
         emit({'status': 'abort_with_open_position', 'reason': str(e)})
 
-    # From here on, finish the close even if another stop signal arrives.
+    # From here on, finish settling even if another stop signal arrives.
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    closed = close_position(ex, md, opened, args, report)
+    if close_reason == 'held_to_resolution':
+        if outcome is None:
+            closed = {'closed_at': ts_utc(), 'close_success': False,
+                      'close_status': 'resolution_timeout', 'close_usdc': 0.0,
+                      'close_shares': 0.0, 'close_order_id': None, 'close_tx': None}
+        else:
+            won = outcome == opened['side']
+            closed = {'closed_at': ts_utc(), 'close_success': True,
+                      'close_status': 'resolved', 'resolution': outcome, 'won': won,
+                      'close_usdc': round(opened['shares'] * 1.0, 6) if won else 0.0,
+                      'close_shares': opened['shares'], 'close_order_id': None, 'close_tx': None}
+            if won and ex.execute:
+                report['redeem_note'] = ('winning shares settle via market redemption; '
+                                         'verify the USDC credit in your Polymarket balance')
+            emit({'status': 'resolved', 'outcome': outcome, 'won': won})
+    else:
+        closed = close_position(ex, md, opened, args, report)
     closed['close_reason'] = close_reason
     report['closed'] = closed
 
