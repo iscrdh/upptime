@@ -5,15 +5,15 @@
     "icon": "https://icons.duckduckgo.com/ip3/truyol.com.ico",
     "slug": "truyol",
     "status": "down",
-    "uptime": "99.72%",
-    "uptimeDay": "99.66%",
-    "uptimeWeek": "99.37%",
-    "uptimeMonth": "99.86%",
-    "uptimeYear": "99.82%",
-    "time": 1519,
+    "uptime": "99.70%",
+    "uptimeDay": "66.26%",
+    "uptimeWeek": "94.60%",
+    "uptimeMonth": "98.76%",
+    "uptimeYear": "99.73%",
+    "time": 1472,
     "timeDay": 1364,
     "timeWeek": 1378,
-    "timeMonth": 1317,
+    "timeMonth": 1323,
     "timeYear": 1465,
     "dailyMinutesDown": {
       "2025-07-18": 56,
@@ -26,7 +26,7 @@
       "2026-02-21": 139,
       "2026-03-10": 22,
       "2026-07-13": 58,
-      "2026-07-15": 5
+      "2026-07-15": 486
     }
   },
   {
@@ -35,11 +35,11 @@
     "icon": "https://icons.duckduckgo.com/ip3/bo.truyol.com.ico",
     "slug": "bo-truyol",
     "status": "down",
-    "uptime": "92.84%",
+    "uptime": "92.82%",
     "uptimeDay": "0.00%",
     "uptimeWeek": "0.00%",
     "uptimeMonth": "1.38%",
-    "uptimeYear": "75.20%",
+    "uptimeYear": "75.10%",
     "time": 1064,
     "timeDay": 0,
     "timeWeek": 0,
@@ -54,7 +54,7 @@
       "2026-02-07": 107,
       "2026-02-08": 42,
       "2026-02-21": 138,
-      "2026-07-15": 951,
+      "2026-07-15": 1432,
       "2026-07-14": 1440,
       "2026-07-13": 1440,
       "2026-07-12": 1440,
@@ -152,16 +152,16 @@
     "url": "https://www.nroot.es/",
     "icon": "https://icons.duckduckgo.com/ip3/www.nroot.es.ico",
     "slug": "nroot",
-    "status": "up",
+    "status": "down",
     "uptime": "99.66%",
-    "uptimeDay": "100.00%",
+    "uptimeDay": "99.98%",
     "uptimeWeek": "100.00%",
     "uptimeMonth": "100.00%",
     "uptimeYear": "99.69%",
     "time": 1612,
     "timeDay": 1630,
     "timeWeek": 1597,
-    "timeMonth": 1413,
+    "timeMonth": 1425,
     "timeYear": 1583,
     "dailyMinutesDown": {
       "2025-08-06": 29,
@@ -176,7 +176,8 @@
       "2026-04-09": 24,
       "2026-05-15": 276,
       "2026-05-21": 21,
-      "2026-05-28": 92
+      "2026-05-28": 92,
+      "2026-07-15": 0
     }
   }
 ]
